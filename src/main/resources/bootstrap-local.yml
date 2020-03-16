@@ -1,0 +1,22 @@
+spring:
+  cloud:
+    consul:
+      enabled: false
+    vault:
+      enabled: false
+  data:
+    mongodb:
+      host: localhost
+      database: cartoesutilslogrequisicaoapi
+management:
+  metrics:
+    export:
+      influx:
+        enabled: false
+      
+logging:
+  level:
+    br:
+      com:
+        sicredi:
+          cartoesutils: TRACE

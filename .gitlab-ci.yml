@@ -1,0 +1,36 @@
+#########################################
+# Antes de alterar, favor leia o README #
+#########################################
+
+include:
+  remote: https://git.sicredi.net/infra/dev-console-ci/raw/master/sicredi-devconsole-ci.yaml
+
+stages:
+  - build
+  - deploy
+  - deploy-prod
+  - monitor_install
+
+"Build Maven":
+  extends: .build-mvn-only
+
+"Build Maven Jib (Develop)":
+  extends: .build-mvn-jib-des
+
+"Build Maven Jib (Tag)":
+  extends: .build-mvn-jib-tag
+
+"Deploy DEV (Develop)":
+  extends: .deploy.k8s.dev
+
+"Deploy UAT/Homolog (Tag)":
+  extends: .deploy.k8s.uat
+
+"Deploy STRESS/pre-prod (Tag)":
+  extends: .deploy.k8s.stress
+
+"Deploy Producao (Tag)":
+  extends: .deploy.prod
+
+"Instalacao Monitoramento":
+  extends: .monitor-install

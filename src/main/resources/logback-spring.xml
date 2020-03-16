@@ -1,0 +1,45 @@
+<configuration debug="true">
+    <springProperty scope="context" name="bootstrapServer" source="KAFKA_LOGS_SERVER" defaultValue="app1kafka1d.des.sicredi.net:9092"/>
+    <springProperty scope="context" name="appName"      source="spring.application.name"/>
+    <springProperty scope="context" name="appGroupName" source="spring.application.group"/>
+    <springProperty scope="context" name="LOG_APPLICATION" source="log.level.application" defaultValue="ERROR"/>
+
+    <!--Configuracao de Apender alternativo para log em console. Pode ser customizado como quiser-->
+    <appender class="ch.qos.logback.core.ConsoleAppender" name="STDOUT">
+        <encoder>
+            <pattern>%date %-5level %X{X-B3-TraceId} %class{30} %message %n</pattern>
+        </encoder>
+    </appender>
+
+    <!--CONFIGURACAO LOG LEVEL-->
+    <logger name="org.apache" level="ERROR" />
+    <logger name="org.springframework" level="ERROR" />
+    <logger name="io.micrometer" level="ERROR" />
+    <logger name="org.hibernate" level="ERROR" />
+    <logger name="com.zaxxer.hikari" level="ERROR" />
+    <logger name="springfox" level="ERROR" />
+
+    <springProfile name="!local">
+        <!--Configuracao de Appender para envio no formato GELF para o kafka. Melhor nao alterar nada! -->
+        <appender name="gelf" class="br.com.dpaper.logback.appender.GeflAppender">
+            <appName>${appName}</appName>
+            <appGroupName>${appGroupName}</appGroupName>
+            <bootstrap>${bootstrapServer}</bootstrap>
+            <!--Appender de Fallback -->
+            <appender-ref ref="STDOUT" />
+        </appender>
+        <root level="ERROR">
+            <!-- Habilitar envio de logs diretamente para o GrayLog via Kafka -->
+	    	<appender-ref ref="gelf" />
+            <appender-ref ref="STDOUT"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="local">
+        <root level="INFO">
+            <!--Habilitar logs no console-->
+            <appender-ref ref="STDOUT" />
+        </root>
+    </springProfile>
+
+</configuration>

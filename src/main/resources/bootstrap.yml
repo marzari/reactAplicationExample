@@ -1,0 +1,66 @@
+spring:
+  main:
+    banner-mode: "off"
+  application:
+    group: cartoesutils
+    name: cartoesutils-log-requisicao-api
+  sleuth:
+    web:
+      skipPattern: /actuator/.*
+    sampler:
+      percentage: 1.0
+      probability: 1.0
+  zipkin:
+    baseUrl: ${ZIPKIN_URL}
+  cloud:
+    consul:
+      # Token abaixo ?? somente leitura no consul para execucao local do dev
+      # o Token de escrita deve ser solicitado para o engenheiro devops do time.
+      token: ${CONSUL_TOKEN:bd5517a2-581c-bde9-0a66-8e1cdc86a482} 
+      host: ${CONSUL_SERVER:http://consul.des.sicredi.net}
+      port: ${CONSUL_PORT:8500}
+      config:
+        enabled: true
+        prefix: ${spring.application.group}
+        defaultContext: ${spring.application.name}
+        format: YAML
+      discovery:
+        enabled: false
+    vault:
+      fail-fast: true
+      authentication: ${VAULT_AUTH:TOKEN}
+
+      # local token
+      token: s.750asFcRuJJrIzzpueLsv4li
+
+      # vault host
+      host: ${VAULT_SERVER:vault.des.sicredi.net}
+      port: 8200
+      scheme: http
+
+      # define application name as role within kubernetes
+      kubernetes:
+        role: ${spring.application.name}
+      lookup:
+      - root-path: db
+        keys:
+        - mongodb.cartoesutilslogrequisicaoapi.cartoesutilslogrequisicaoapi.password
+      - root-path: app/${spring.application.name}
+        keys:
+        - created_at
+      - root-path: app/${spring.application.name}
+        keys:
+        - token_mandatory_auth
+management:
+  metrics:
+    export:
+      influx:
+        enabled: false
+        auto-create-db: false
+        step: 10s
+        uri: ${METRICS_INFLUX_URI}
+        db: micrometer
+        user-name: ${METRICS_INFLUX_USER}
+        password: ${METRICS_INFLUX_PASS}
+server:
+  port: 8080
